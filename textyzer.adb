@@ -2,7 +2,7 @@
 --  Student ID: 1093791
 --  Course: CIS*3190
 
-with textStats; use textStats;
+with textstats; use textstats;
 --  with Ada.Text_IO; use Ada.Text_IO; -- for I/O operations
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Unbounded.Text_IO; use Ada.Strings.Unbounded.Text_IO;

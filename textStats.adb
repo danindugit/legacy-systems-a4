@@ -6,7 +6,7 @@ with Ada.Text_IO; use Ada.Text_IO; -- for I/O operations
 with Ada.Directories; use Ada.Directories;
 with Ada.Strings.Unbounded.Text_IO; use Ada.Strings.Unbounded.Text_IO;
 
-package body textStats is
+package body textstats is
 
    procedure getFilename(filename : out unbounded_string) is
    begin
@@ -219,4 +219,4 @@ package body textStats is
       end if;
    end end_of_sent;
 
-end textStats;
+end textstats;
