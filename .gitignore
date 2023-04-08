@@ -1,0 +1,4 @@
+*.gpr
+*.o
+*.ali
+textyzer
