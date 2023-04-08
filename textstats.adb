@@ -41,6 +41,8 @@ package body textstats is
       words : string_array(1..totalSpaces);
       longestWord : integer := 0;
       tempStr : string(1..1);
+      avgChars : float;
+      avgWords : float;
    begin
       -- Open the file for reading
       open(fptr, in_file, to_string(filename));
@@ -75,6 +77,10 @@ package body textstats is
                currWord := currWord & To_Unbounded_String(tempStr);
             end loop;
 
+            --  if(isPunc(ch)) then
+            --     totalPunc := totalPunc + 1;
+            --  end if;
+
             --  check if this is the longest word
             if charsInWord > longestWord then
                longestWord := charsInWord;
@@ -95,6 +101,11 @@ package body textstats is
                   exit when not isNum(ch);
                end loop;
             end if;
+
+            if(isPunc(ch)) then
+               totalPunc := totalPunc + 1;
+            end if;  
+            
          end if;
 
          --  check for the end of a sentence
@@ -133,7 +144,7 @@ package body textstats is
                --  reset charsInWord
                charsInWord := 0;
                --  add the word to the words array
-               append_to_string_array(currWord, words);
+               words(totalWords) := currWord;
                exit; -- after looping through a word, exit the loop
 
             elsif isNum(ch) then
@@ -149,14 +160,24 @@ package body textstats is
             end if;
             
          end loop;
-
-         --  check for the end of a sentence
-         end_of_sent_check(ch, totalSents, totalWords, longestSent, wordsInSent);
          
       end loop;
 
       -- close the file
       close(fptr);
+
+      avgChars := float(totalChars) / float(totalWords);
+      avgWords := float(totalWords) / float(totalSents);
+
+      put_line("Character count (a-z): " & integer'image(totalChars));
+      put_line("Word count: " & integer'image(totalWords));
+      put_line("Sentence count: " & integer'image(totalSents));
+      put_line("Number count: " & integer'image(totalNumbers));
+      put_line("Punctuation count: " & integer'image(totalPunc));
+      put_line("Longest word length: " & integer'image(longestWord));
+      put_line("Longest sentence length: " & integer'image(longestSent));
+      put_line("Characters per word: " & float'image(avgChars));
+      put_line("Words per sentence: " & float'image(avgWords));
 
    end analyzeText;
 
@@ -207,14 +228,30 @@ package body textstats is
 
    end count_spaces_in_file;
 
+   function count_lines_in_file(filename : unbounded_string) return integer is
+      fptr : file_type;
+      count : integer := 0;
+      temp : unbounded_string;
+   begin
+      open(fptr, in_file, to_string(filename));
+      while not end_of_file(fptr) loop
+         get_line(fptr, temp);
+         count := count + 1;
+      end loop;
+      close(fptr);
+      return count;
+   end count_lines_in_file;
+
+
+
    procedure append_to_string_array(word : unbounded_string; strings : in out string_array) is
    begin
-      strings(strings'length + 1) := word;
+      strings(1) := word;
    end append_to_string_array;
 
    procedure end_of_sent_check(ch : in character; totalSents : in out integer; totalWords : in out integer; longestSent : in out integer; wordsInSent : in out integer) is
    begin
-      if ch = '!' or ch = '.' or ch = '?' or ch = ' ' then
+      if ch = '!' or ch = '.' or ch = '?' then
          totalSents := totalSents + 1;
          totalWords := totalWords + wordsInSent;
          if longestSent < wordsInSent then

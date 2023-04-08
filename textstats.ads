@@ -13,6 +13,7 @@ package textstats is
    function isNum(ch : character) return boolean;
    function isLetter(ch : character) return boolean;
    function count_spaces_in_file(filename : unbounded_string) return integer;
+   function count_lines_in_file(filename : unbounded_string) return integer;
    procedure append_to_string_array(word : unbounded_string; strings : in out string_array);
    procedure end_of_sent_check(ch : in character; totalSents : in out integer; totalWords : in out integer; longestSent : in out integer; wordsInSent : in out integer);
 end textstats;
