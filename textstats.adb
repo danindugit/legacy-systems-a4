@@ -27,7 +27,7 @@ package body textstats is
    end getFilename;
 
    procedure analyzeText(filename : in unbounded_string; totalSpaces : in integer) is
-      currWord : unbounded_string := "";
+      currWord : unbounded_string := to_unbounded_string("");
       fptr : file_type;
       ch : character;
       charsInWord : integer := 0;
@@ -40,16 +40,17 @@ package body textstats is
       totalNumbers : integer := 0;
       words : string_array(1..totalSpaces);
       longestWord : integer := 0;
+      tempStr : string(1..1);
    begin
       -- Open the file for reading
-      open(fptr, in_file, filename);
+      open(fptr, in_file, to_string(filename));
 
       -- Loop through each character of the file
       while not end_of_file(fptr) loop
          -- Loop through characters until the character is not one of the following: ('!', '.', '?', ' ')
          loop
             get(fptr, ch);
-            if(isPunct(ch)) then
+            if(isPunc(ch)) then
                totalPunc := totalPunc + 1;
             end if;
             exit when ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ';
@@ -57,19 +58,21 @@ package body textstats is
 
          --  if the current character is not punctuation (a word begins)
          if ch /= '!' and ch /= '.' and ch /= '?' then
-            if (isLetter) then
+            if (isLetter(ch)) then
             charsInWord := charsInWord + 1;
             wordsInSent := wordsInSent + 1;
             --  append characters to currWord
-            currWord := currWord & To_Unbounded_String(ch);
+            tempStr(1) := ch;
+            currWord := currWord & To_Unbounded_String(tempStr);
 
             --  loop until the end of the word
             loop
                get(fptr, ch);
                exit when not isLetter(ch);
-               charsInWord = charsInWord + 1;
+               charsInWord := charsInWord + 1;
                --  append characters to currWord
-               currWord := currWord & To_Unbounded_String(ch);
+               tempStr(1) := ch;
+               currWord := currWord & To_Unbounded_String(tempStr);
             end loop;
 
             --  check if this is the longest word
@@ -95,7 +98,7 @@ package body textstats is
          end if;
 
          --  check for the end of a sentence
-         end_of_sent_check(totalSents, totalWords, longestSent, wordsInSent);
+         end_of_sent_check(ch, totalSents, totalWords, longestSent, wordsInSent);
 
          -- Loop until end of line or until the character is not one of the following: ('!', '.', '?', ' ')
          loop
@@ -107,15 +110,17 @@ package body textstats is
                charsInWord := charsInWord + 1;
                wordsInSent := wordsInSent + 1;
                --  append characters to currWord
-               currWord := currWord & To_Unbounded_String(ch);
+               tempStr(1) := ch;
+               currWord := currWord & To_Unbounded_String(tempStr);
 
                --  loop until the end of the word
                loop
                   get(fptr, ch);
                   exit when not isLetter(ch);
-                  charsInWord = charsInWord + 1;
+                  charsInWord := charsInWord + 1;
                   --  append characters to currWord
-                  currWord := currWord & To_Unbounded_String(ch);
+                  tempStr(1) := ch;
+                  currWord := currWord & To_Unbounded_String(tempStr);
                end loop;
 
                --  check if this is the longest word
@@ -146,7 +151,7 @@ package body textstats is
          end loop;
 
          --  check for the end of a sentence
-         end_of_sent_check(totalSents, totalWords, longestSent, wordsInSent);
+         end_of_sent_check(ch, totalSents, totalWords, longestSent, wordsInSent);
          
       end loop;
 
@@ -174,20 +179,20 @@ package body textstats is
 
    function isNum(ch : character) return boolean is
    begin
-      return character'val(character'pos(ch) in 48..57);
+      return ch in '0'..'9';
    end isNum;
 
    function isLetter(ch : character) return boolean is
    begin
-      return character'val(character'pos(ch) in 65..90 or 97..122);
+      return ch in 'a'..'z' or ch in 'A'..'Z';
    end isLetter;
 
-   function count_spaces_in_file(filename : string) return integer is
+   function count_spaces_in_file(filename : unbounded_string) return integer is
       fptr : file_type;
       ch : character;
       space_count : integer := 0;
    begin
-      open(fptr, in_file, filename);
+      open(fptr, in_file, to_string(filename));
 
       while not end_of_file(fptr) loop
          get(fptr, ch);
@@ -202,9 +207,9 @@ package body textstats is
 
    end count_spaces_in_file;
 
-   procedure append_to_string_array(word : in string; strings : in out string_array) is
+   procedure append_to_string_array(word : unbounded_string; strings : in out string_array) is
    begin
-      strings(strings'length + 1) := to_unbounded_string(word);
+      strings(strings'length + 1) := word;
    end append_to_string_array;
 
    procedure end_of_sent_check(ch : in character; totalSents : in out integer; totalWords : in out integer; longestSent : in out integer; wordsInSent : in out integer) is
@@ -213,10 +218,10 @@ package body textstats is
          totalSents := totalSents + 1;
          totalWords := totalWords + wordsInSent;
          if longestSent < wordsInSent then
-            longestSent = wordsInSent;
+            longestSent := wordsInSent;
          end if;
          wordsInSent := 0;
       end if;
-   end end_of_sent;
+   end end_of_sent_check;
 
 end textstats;
