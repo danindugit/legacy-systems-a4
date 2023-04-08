@@ -9,7 +9,10 @@ with Ada.Strings.Unbounded.Text_IO; use Ada.Strings.Unbounded.Text_IO;
 
 procedure textyzer is
    filename : unbounded_string;
+   totalSpaces : int;
 begin
    getFilename(filename);
-   put(filename);
+   
+   --  count spaces in the file
+   totalSpaces := count_spaces_in_file(filename);
 end textyzer;
