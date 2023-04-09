@@ -52,53 +52,64 @@ package body textstats is
          -- Loop through characters until the character is not one of the following: ('!', '.', '?', ' ')
          loop
             get(fptr, ch);
+  
             if(isPunc(ch)) then
                totalPunc := totalPunc + 1;
             end if;
-            exit when ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ';
+            exit when ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ' and ch /= ' ' and ch /= ',';
          end loop;
 
-         --  if the current character is not punctuation (a word begins)
-         if ch /= '!' and ch /= '.' and ch /= '?' then
+         --  if the current character is not punctuation or space (a word begins)
+         if ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ' and ch /= ',' then
             if (isLetter(ch)) then
-            charsInWord := charsInWord + 1;
-            wordsInSent := wordsInSent + 1;
-            --  append characters to currWord
-            tempStr(1) := ch;
-            currWord := currWord & To_Unbounded_String(tempStr);
-
-            --  loop until the end of the word
-            loop
-               get(fptr, ch);
-               exit when not isLetter(ch);
+               --  put(ch);
+               --  put(' ');
                charsInWord := charsInWord + 1;
+               wordsInSent := wordsInSent + 1;
                --  append characters to currWord
                tempStr(1) := ch;
                currWord := currWord & To_Unbounded_String(tempStr);
-            end loop;
 
-            --  if(isPunc(ch)) then
-            --     totalPunc := totalPunc + 1;
-            --  end if;
+               --  loop until the end of the word
+               loop
+                  get(fptr, ch);
+    
+                  exit when not isLetter(ch);
+                  if(isLetter(ch)) then
+                     charsInWord := charsInWord + 1;
+                     --  append characters to currWord
+                     tempStr(1) := ch;
+                     currWord := currWord & To_Unbounded_String(tempStr);
+                  end if;
+               end loop;
 
-            --  check if this is the longest word
-            if charsInWord > longestWord then
-               longestWord := charsInWord;
-            end if;
+               --  if(isPunc(ch)) then
+               --     totalPunc := totalPunc + 1;
+               --  end if;
 
-            --  add the chars in word to total chars
-            totalChars := totalChars + charsInWord;
-            --  reset charsInWord
-            charsInWord := 0;
-            --  add the word to the words array
-            append_to_string_array(currWord, words);
+               --  check if this is the longest word
+               if charsInWord > longestWord then
+                  longestWord := charsInWord;
+               end if;
+
+               --  add the chars in word to total chars
+               totalChars := totalChars + charsInWord;
+               --  reset charsInWord
+               charsInWord := 0;
+               --  add the word to the words array
+               --  put_line(currWord);
+               append_to_string_array(currWord, words);
+               currWord := to_unbounded_string("");
 
             elsif isNum(ch) then
                totalNumbers := totalNumbers + 1;
+               totalChars := totalChars + 1;
                --  loop until the end of the number
                loop
                   get(fptr, ch);
+        
                   exit when not isNum(ch);
+                  totalChars := totalChars + 1;
                end loop;
             end if;
 
@@ -113,11 +124,12 @@ package body textstats is
 
          -- Loop until end of line or until the character is not one of the following: ('!', '.', '?', ' ')
          loop
-            exit when end_of_line(fptr);
+            exit when end_of_line(fptr) or (ch = '!' or ch = '.' or ch = '?' or ch = ' ' or ch = ',');
+            --  exit when ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ' and ch /= ',';
             get(fptr, ch);
-            exit when ch /= '!' and ch /= '.' and ch /= '?' and ch /= ' ';
 
             if isLetter(ch) then
+               --  put(ch);
                charsInWord := charsInWord + 1;
                wordsInSent := wordsInSent + 1;
                --  append characters to currWord
@@ -129,9 +141,12 @@ package body textstats is
                   get(fptr, ch);
                   exit when not isLetter(ch);
                   charsInWord := charsInWord + 1;
-                  --  append characters to currWord
-                  tempStr(1) := ch;
-                  currWord := currWord & To_Unbounded_String(tempStr);
+                  if(isLetter(ch)) then
+                     charsInWord := charsInWord + 1;
+                     --  append characters to currWord
+                     tempStr(1) := ch;
+                     currWord := currWord & To_Unbounded_String(tempStr);
+                  end if;
                end loop;
 
                --  check if this is the longest word
@@ -140,19 +155,21 @@ package body textstats is
                end if;
 
                --  add the chars in word to total chars
-               totalChars := totalChars + charsInWord;
+               --  totalChars := totalChars + charsInWord;
                --  reset charsInWord
                charsInWord := 0;
                --  add the word to the words array
-               words(totalWords) := currWord;
+               --  words(totalWords) := currWord;
                exit; -- after looping through a word, exit the loop
 
             elsif isNum(ch) then
                totalNumbers := totalNumbers + 1;
+               totalChars := totalChars + 1;
                --  loop until the end of the number
                loop
                   get(fptr, ch);
                   exit when not isNum(ch);
+                  totalChars := totalChars + 1;
                end loop;
 
                exit; -- after looping through a number, exit the loop
@@ -169,6 +186,9 @@ package body textstats is
       avgChars := float(totalChars) / float(totalWords);
       avgWords := float(totalWords) / float(totalSents);
 
+      new_line;
+      put_line("Statistics:");
+      put_line("---------------------------");
       put_line("Character count (a-z): " & integer'image(totalChars));
       put_line("Word count: " & integer'image(totalWords));
       put_line("Sentence count: " & integer'image(totalSents));
