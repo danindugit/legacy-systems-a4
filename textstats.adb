@@ -113,14 +113,12 @@ package body textstats is
             --  handle if the character is a number
             elsif isNum(ch) then
                totalNumbers := totalNumbers + 1;
-               totalChars := totalChars + 1;
 
                --  loop until the end of the number
                loop
                   get(fptr, ch);
         
                   exit when not isNum(ch);
-                  totalChars := totalChars + 1;
                end loop;
             end if;
 
@@ -173,13 +171,11 @@ package body textstats is
 
             elsif isNum(ch) then
                totalNumbers := totalNumbers + 1;
-               totalChars := totalChars + 1;
 
                --  loop until the end of the number
                loop
                   get(fptr, ch);
                   exit when not isNum(ch);
-                  totalChars := totalChars + 1;
                end loop;
 
                exit; -- after looping through a number, exit the loop
@@ -201,11 +197,13 @@ package body textstats is
       new_line;
       put_line("Statistics:");
       put_line("---------------------------");
-      put_line("Character count: " & integer'image(totalChars));
+      put_line("Letter count: " & integer'image(totalChars));
       put_line("Word count: " & integer'image(totalWords));
-      put_line("Sentence count: " & integer'image(totalSents));
       put_line("Number count: " & integer'image(totalNumbers));
+      put_line("Sentence count: " & integer'image(totalSents));
+      put_line("Line count: " & integer'image(count_lines_in_file(filename)));
       put_line("Punctuation count: " & integer'image(totalPunc));
+      put_line("Space count: " & integer'image(count_spaces_in_file(filename)));
       put_line("Longest word length: " & integer'image(longestWord));
       put_line("Longest sentence length: " & integer'image(longestSent));
       put_line("Characters per word: " & float'image(avgChars));
